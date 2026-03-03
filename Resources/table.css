@@ -1,0 +1,205 @@
+/* Fluent Table — styles that Tabler doesn't cover */
+
+/* Table body — minimum height prevents layout shift during loading/empty states */
+
+.card-table .table-responsive {
+    min-height: 12rem;
+}
+
+/* Loading overlay */
+
+.flt-loader {
+    position: absolute;
+    inset: 0;
+    background: var(--tblr-bg-surface, rgba(255, 255, 255, 0.85));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: var(--tblr-border-radius);
+}
+
+/* Sort buttons in <th> */
+
+.flt-sort {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    white-space: nowrap;
+}
+
+.flt-sort {
+    min-height: 2.75rem;
+    padding: .5rem 0;
+}
+
+.flt-sort:focus-visible {
+    outline: 2px solid var(--tblr-primary, #206bc4);
+    outline-offset: 2px;
+}
+
+.flt-sort::after {
+    content: "";
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: bottom;
+    -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1'><path d='M5 7l3 -3l3 3'/><path d='M5 10l3 3l3 -3'/></svg>");
+    mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1'><path d='M5 7l3 -3l3 3'/><path d='M5 10l3 3l3 -3'/></svg>");
+    background: currentColor;
+}
+
+.flt-sort:hover::after {
+    opacity: .6;
+}
+
+.flt-sort.asc::after {
+    -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1' d='M5 10l3 -3l3 3'/></svg>");
+    mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1' d='M5 10l3 -3l3 3'/></svg>");
+}
+
+.flt-sort.desc::after {
+    -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1' d='M5 7l3 3l3 -3'/></svg>");
+    mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1' d='M5 7l3 3l3 -3'/></svg>");
+}
+
+/* Empty state — vertically centered within min-height */
+
+.flt-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: inherit;
+    padding: 2rem 1rem;
+}
+
+/* Quick filters in card header */
+
+.flt-filter-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.flt-filter-label {
+    font-size: .8125rem;
+    white-space: nowrap;
+    color: inherit;
+    margin: 0;
+}
+
+.flt-filter {
+    min-width: 7rem;
+    max-width: 14rem;
+}
+
+/* Inline inputs (select, datepicker) — compact in table cells */
+
+.flt-select,
+.flt-datepicker {
+    min-width: 8rem;
+    max-width: 14rem;
+}
+
+/* Action buttons in cells */
+
+td .flt-btn,
+td .btn-group .flt-btn {
+    margin: 0;
+}
+
+/* Tags in cells */
+
+.card-table td .badge {
+    white-space: nowrap;
+}
+
+/* Status cast — colored dot + text */
+
+.flt-status-dot {
+    display: inline-block;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: .35rem;
+}
+
+/* Expandable rows */
+
+.flt-expandable-row {
+    cursor: pointer;
+}
+
+.flt-expandable-row:hover,
+.flt-expanded {
+    background: var(--tblr-active-bg, rgba(32, 107, 196, 0.04));
+}
+
+.flt-expand-row > td {
+    background: var(--tblr-bg-surface-secondary, #f8f9fa);
+    border-top: 0;
+}
+
+.flt-expand-icon {
+    transition: transform .2s ease;
+}
+
+.flt-expanded .flt-expand-icon {
+    transform: rotate(180deg);
+}
+
+/* Entity cast — avatar + title + subtitle */
+
+.flt-entity {
+    display: flex;
+    align-items: center;
+    padding: .25rem 0;
+    min-width: 0;
+}
+
+.flt-entity-avatar {
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--tblr-border-color, #e6e7e9);
+}
+
+.flt-entity-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.flt-entity-title {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flt-entity-subtitle {
+    font-size: .8125rem;
+    color: var(--tblr-secondary, #626976);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .flt-expand-icon {
+        transition: none;
+    }
+    .flt-loader .spinner-border {
+        animation: none;
+    }
+}
