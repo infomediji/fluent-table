@@ -13,6 +13,9 @@ final class EntityCast extends AbstractCast
 
     public static function make(string $title): self
     {
+        if ($title === '') {
+            throw new \InvalidArgumentException('EntityCast title field must not be empty.');
+        }
         return new self($title);
     }
 

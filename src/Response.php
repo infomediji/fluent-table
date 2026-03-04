@@ -24,6 +24,9 @@ final class Response
         if ($perPage <= 0) {
             throw new \InvalidArgumentException('perPage must be greater than 0, got ' . $perPage);
         }
+        if ($total < 0) {
+            throw new \InvalidArgumentException('total must not be negative, got ' . $total);
+        }
 
         return [
             'data' => $data,

@@ -29,6 +29,10 @@ final class ButtonGroupCast extends AbstractCast
     /** @return array<string, mixed> */
     protected function config(): array
     {
+        if ($this->buttons === []) {
+            throw new \LogicException('ButtonGroupCast: at least one button must be added via add().');
+        }
+
         return [
             'buttons' => array_map(static fn(ButtonCast|IconButtonCast $b): array => $b->toArray(), $this->buttons),
         ];

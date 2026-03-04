@@ -51,6 +51,8 @@
     function safeUrl(url) {
         const trimmed = String(url).trim();
         if (!trimmed) return '';
+        // Block protocol-relative URLs (//evil.com)
+        if (trimmed.startsWith('//')) return '';
         if (/^https?:/i.test(trimmed) || /^[\/\.#?]/.test(trimmed) || !trimmed.includes(':')) return trimmed;
         return '';
     }
@@ -422,7 +424,9 @@
 
             let avatarHtml = '';
             if (avatarUrl) {
-                avatarHtml = `<span class="flt-entity-avatar me-2" role="img" aria-label="${escAttr(title)}" style="width:${esc(size)};height:${esc(size)};background-image:url(&quot;${escAttr(avatarUrl)}&quot;)"></span>`;
+                // Strip quotes, parens, backslashes to prevent CSS injection in url()
+                const safeCssUrl = avatarUrl.replace(/["'()\\]/g, '');
+                avatarHtml = `<span class="flt-entity-avatar me-2" role="img" aria-label="${escAttr(title)}" style="width:${esc(size)};height:${esc(size)};background-image:url(&quot;${escAttr(safeCssUrl)}&quot;)"></span>`;
             }
 
             let subtitleHtml = '';

@@ -24,6 +24,7 @@ final class IconButtonCast extends AbstractCast
      */
     public static function make(string $url, Icon|string $icon, ButtonStyle|string $style = 'ghost-secondary'): self
     {
+        self::assertSafeUrl($url, 'IconButtonCast URL');
         return new self($url, $icon, $style);
     }
 

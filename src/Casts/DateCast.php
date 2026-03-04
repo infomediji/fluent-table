@@ -11,11 +11,17 @@ final class DateCast extends AbstractCast
 
     public static function make(string $format = 'd M Y'): self
     {
+        if ($format === '') {
+            throw new \InvalidArgumentException('DateCast format must not be empty.');
+        }
         return new self($format, false);
     }
 
     public static function withTime(string $format = 'd M Y H:i'): self
     {
+        if ($format === '') {
+            throw new \InvalidArgumentException('DateCast format must not be empty.');
+        }
         return new self($format, true);
     }
 

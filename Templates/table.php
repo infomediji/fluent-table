@@ -112,12 +112,12 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
     <div class="table-responsive position-relative">
 
         <!-- Loading overlay -->
-        <div class="flt-loader" id="<?= htmlspecialchars($id) ?>-loader" aria-live="polite" aria-busy="false" style="visibility:hidden">
+        <div class="flt-loader" id="<?= htmlspecialchars($id) ?>-loader" aria-busy="false" style="visibility:hidden">
             <div class="flt-loader-inner">
                 <div class="spinner-border text-secondary" role="status">
                     <span class="visually-hidden"><?= htmlspecialchars($l('loading', 'Loading...')) ?></span>
                 </div>
-                <span class="visually-hidden flt-loader-text"></span>
+                <span class="visually-hidden flt-loader-text" aria-live="polite"></span>
             </div>
         </div>
 
@@ -131,7 +131,7 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                     <th<?= !empty($col['width']) ? ' style="width:' . htmlspecialchars($col['width']) . '"' : '' ?>
                         <?= ($col['align'] ?? 'left') !== 'left' ? ' class="text-' . htmlspecialchars($col['align']) . '"' : '' ?>>
                         <?php if ($col['sortable'] ?? true): ?>
-                            <button class="table-sort d-flex align-items-center gap-1 flt-sort"
+                            <button type="button" class="table-sort d-flex align-items-center gap-1 flt-sort"
                                     data-table="<?= htmlspecialchars($id) ?>"
                                     data-field="<?= htmlspecialchars($col['field']) ?>">
                                 <?= htmlspecialchars($col['name']) ?>

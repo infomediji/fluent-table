@@ -16,6 +16,7 @@ final class LinkCast extends AbstractCast
      */
     public static function make(string $url, ?string $label = null): self
     {
+        self::assertSafeUrl($url, 'LinkCast URL');
         return new self($url, $label);
     }
 

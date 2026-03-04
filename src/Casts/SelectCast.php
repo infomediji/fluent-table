@@ -18,6 +18,7 @@ final class SelectCast extends AbstractCast
      */
     public static function make(string $url, string $field): self
     {
+        self::assertSafeUrl($url, 'SelectCast URL');
         return new self($url, $field);
     }
 
@@ -37,6 +38,7 @@ final class SelectCast extends AbstractCast
      */
     public function optionsFrom(string $url): self
     {
+        self::assertSafeUrl($url, 'SelectCast optionsFrom URL');
         return $this->with('optionsFrom', $url);
     }
 
@@ -48,6 +50,10 @@ final class SelectCast extends AbstractCast
     /** @return array<string, mixed> */
     protected function config(): array
     {
+        if ($this->options !== [] && $this->optionsFrom !== null) {
+            throw new \LogicException('SelectCast: cannot use both options() and optionsFrom() — choose one.');
+        }
+
         return [
             'url'         => $this->url,
             'field'       => $this->field,

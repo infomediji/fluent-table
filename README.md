@@ -1,8 +1,8 @@
 # FluentTable
 
-Fluent PHP builder for [Tabler UI](https://tabler.io/) data tables with REST endpoint support.
+Zero-dependency data table engine for [Tabler UI](https://tabler.io/) with a fluent PHP API, 20+ cell renderers, and built-in pagination, sorting, search, and inline editing.
 
-Zero dependencies on the JS side. Works with any backend that returns `{ data: [], meta: { pagination: {} } }`.
+Works with any backend that returns `{ data: [], meta: { pagination: {} } }`.
 
 ## Requirements
 
@@ -506,7 +506,7 @@ document.addEventListener('flt:export', (e) => {
 
 ### perPage persistence
 
-The selected page size is saved to `localStorage` (key: `flt-perPage-{endpoint}`) and restored on next init. No configuration needed.
+The selected page size is saved to `localStorage` (key: `flt-perPage-{id}`) and restored on next init. No configuration needed.
 
 ## Localization
 

@@ -22,6 +22,7 @@ final class ButtonCast extends AbstractCast
      */
     public static function make(string $url, string $label, ButtonStyle|string $style = 'ghost-primary'): self
     {
+        self::assertSafeUrl($url, 'ButtonCast URL');
         return new self($url, $label, $style);
     }
 

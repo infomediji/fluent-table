@@ -1,6 +1,6 @@
 {
     "name": "infomediji/fluent-table",
-    "description": "Fluent PHP builder for Tabler UI data tables with REST endpoint support",
+    "description": "Zero-dependency data table engine for Tabler UI with a fluent PHP API, 20+ cell renderers, and built-in pagination, sorting, search, and inline editing",
     "type": "library",
     "license": "MIT",
     "require": {

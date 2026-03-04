@@ -20,16 +20,23 @@ final class DatePickerCast extends AbstractCast
      */
     public static function make(string $url, string $field, string $format = 'Y-m-d'): self
     {
+        self::assertSafeUrl($url, 'DatePickerCast URL');
         return new self($url, $field, $format);
     }
 
     public function min(string $date): self
     {
+        if ($date === '') {
+            throw new \InvalidArgumentException('DatePickerCast min date must not be empty.');
+        }
         return $this->with('minDate', $date);
     }
 
     public function max(string $date): self
     {
+        if ($date === '') {
+            throw new \InvalidArgumentException('DatePickerCast max date must not be empty.');
+        }
         return $this->with('maxDate', $date);
     }
 

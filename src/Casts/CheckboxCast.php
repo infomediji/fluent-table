@@ -21,6 +21,7 @@ final class CheckboxCast extends AbstractCast
      */
     public static function make(string $url, string $field = 'active'): self
     {
+        self::assertSafeUrl($url, 'CheckboxCast URL');
         return new self($url, $field);
     }
 
@@ -43,6 +44,9 @@ final class CheckboxCast extends AbstractCast
     /** Custom true/false values (e.g. 1/0, 'yes'/'no'). */
     public function values(mixed $trueValue, mixed $falseValue): self
     {
+        if ($trueValue === null && $falseValue === null) {
+            throw new \InvalidArgumentException('At least one of trueValue or falseValue must be non-null.');
+        }
         $clone = clone $this;
         $clone->trueValue = $trueValue;
         $clone->falseValue = $falseValue;

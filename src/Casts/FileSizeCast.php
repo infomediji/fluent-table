@@ -10,6 +10,9 @@ final class FileSizeCast extends AbstractCast
 
     public static function make(int $decimals = 1): self
     {
+        if ($decimals < 0) {
+            throw new \InvalidArgumentException('FileSizeCast decimals must not be negative, got ' . $decimals);
+        }
         return new self($decimals);
     }
 

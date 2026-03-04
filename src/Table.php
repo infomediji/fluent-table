@@ -159,6 +159,12 @@ final class Table
     public function action(string $label, string $url, ?Icon $icon = null): self
     {
         $parsed = parse_url($url);
+        if ($parsed === false) {
+            throw new \InvalidArgumentException("Malformed action URL.");
+        }
+        if (str_starts_with($url, '//')) {
+            throw new \InvalidArgumentException("Protocol-relative URLs are not allowed in actions.");
+        }
         if (isset($parsed['scheme']) && !in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
             throw new \InvalidArgumentException("Invalid URL scheme in action URL. Only http/https or relative URLs are allowed.");
         }
@@ -338,16 +344,22 @@ final class Table
             $dest = $publicDir . $timestamped;
 
             if (!file_exists($dest)) {
-                $matches = glob($publicDir . $base . '.*.' . $ext);
-                foreach ($matches !== false ? $matches : [] as $old) {
-                    unlink($old);
-                }
                 $tmp = $dest . '.tmp.' . getmypid();
                 if (!copy($source, $tmp)) {
                     @unlink($tmp);
                     throw new \RuntimeException('Failed to copy asset: ' . $source);
                 }
-                rename($tmp, $dest);
+                if (!rename($tmp, $dest)) {
+                    @unlink($tmp);
+                    throw new \RuntimeException('Failed to rename asset: ' . $tmp);
+                }
+                // Clean old versions only after new file is confirmed
+                $matches = glob($publicDir . $base . '.*.' . $ext);
+                foreach ($matches !== false ? $matches : [] as $old) {
+                    if ($old !== $dest) {
+                        @unlink($old);
+                    }
+                }
             }
 
             $url = '/s/widgets/fluent_table/' . $timestamped;

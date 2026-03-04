@@ -44,13 +44,16 @@ final class Column
 
     public function setWidth(string $width): void
     {
+        if (!preg_match('/^[\d.]+(px|%|rem|em|ch|vw)$/', $width) && $width !== 'auto') {
+            throw new \InvalidArgumentException("Invalid width value '$width'. Expected CSS length (e.g. '100px', '20%', '10rem') or 'auto'.");
+        }
         $this->width = $width;
     }
 
     public function setSearchable(bool $searchable, ?string $field = null): void
     {
         $this->searchable = $searchable;
-        $this->searchField = $field;
+        $this->searchField = $searchable ? $field : null;
     }
 
     public function getName(): string

@@ -11,6 +11,12 @@ final class PriceCast extends AbstractCast
 
     public static function make(string $currency = 'USD', string $locale = 'en-US'): self
     {
+        if ($currency === '') {
+            throw new \InvalidArgumentException('PriceCast currency must not be empty.');
+        }
+        if ($locale === '') {
+            throw new \InvalidArgumentException('PriceCast locale must not be empty.');
+        }
         return new self($currency, $locale);
     }
 
