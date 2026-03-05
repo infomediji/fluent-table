@@ -460,10 +460,16 @@
     const instances = new Map();
 
     function createState(config) {
-        const urlSearch = new URLSearchParams(window.location.search).get(`search_${config.id}`) || new URLSearchParams(window.location.search).get('search') || '';
+        const urlParams  = config.trackUrl ? new URLSearchParams(window.location.search) : null;
+        const urlSearch  = urlParams
+            ? (urlParams.get(`search_${config.id}`) || urlParams.get('search') || '')
+            : '';
 
         const filterValues = {};
-        (config.filters || []).forEach(f => { filterValues[f.param] = f.value ?? ''; });
+        (config.filters || []).forEach(f => {
+            const urlVal = urlParams?.get(f.param);
+            filterValues[f.param] = urlVal !== null && urlVal !== undefined ? urlVal : (f.value ?? '');
+        });
 
         // Restore perPage from localStorage if valid
         let perPage = config.pageSizes?.[0] ?? 20;
@@ -481,15 +487,23 @@
         return {
             config,
             visibleColumns,
-            page:         1,
+            page:         urlParams ? (Number(urlParams.get(`page_${config.id}`)) || 1) : 1,
             rows:         [],
             filterValues,
-            panelFilterValues: {},
+            panelFilterValues: (() => {
+                if (!urlParams) return {};
+                const pf = {};
+                const prefix = `pf_${config.id}_`;
+                for (const [key, val] of urlParams) {
+                    if (key.startsWith(prefix)) pf[key.slice(prefix.length)] = val;
+                }
+                return pf;
+            })(),
             remoteFilters: [],
             perPage,
             search:  urlSearch,
-            sortCol: config.defaultSort?.col ?? null,
-            sortDir: config.defaultSort?.dir ?? 'asc',
+            sortCol: urlParams?.get(`sort_${config.id}`) || config.defaultSort?.col || null,
+            sortDir: urlParams?.get(`sortDir_${config.id}`) || config.defaultSort?.dir || 'asc',
             abortController: null,
         };
     }
@@ -497,18 +511,8 @@
     // Loading overlay
 
     function setLoading(id, on) {
-        const loader = el(`${id}-loader`);
         const wrap = el(`${id}-wrap`);
-        if (loader) {
-            loader.style.visibility = on ? 'visible' : 'hidden';
-            loader.setAttribute('aria-busy', String(on));
-            const loaderText = loader.querySelector('.flt-loader-text');
-            if (loaderText) loaderText.textContent = on ? 'Loading data…' : '';
-        }
         if (wrap) wrap.setAttribute('aria-busy', String(on));
-        if (window.UIUpdater) {
-            on ? UIUpdater.start() : UIUpdater.end(true);
-        }
     }
 
     // Fetch data and render
@@ -587,7 +591,10 @@
                 detail: { tableId: id, error: err },
             }));
         } finally {
-            setLoading(id, false);
+            if (!signal.aborted) {
+                setLoading(id, false);
+                document.dispatchEvent(new CustomEvent('flt:loading-done', { detail: { tableId: id } }));
+            }
         }
     }
 
@@ -734,7 +741,20 @@
         if (!ul) return;
 
         const page       = Number(meta.page ?? 1);
+        const perPage    = Number(meta.perPage ?? instances.get(id)?.perPage ?? 20);
+        const totalCount = Number(meta.totalCount ?? 0);
         const totalPages = Number(meta.totalPages ?? 1);
+
+        const showing = el(`${id}-showing`);
+        if (showing) {
+            if (totalCount > 0) {
+                const from = (page - 1) * perPage + 1;
+                const to   = Math.min(page * perPage, totalCount);
+                showing.textContent = `${from}–${to} of ${totalCount}`;
+            } else {
+                showing.textContent = '';
+            }
+        }
 
         if (totalPages <= 1) { ul.innerHTML = ''; return; }
 
@@ -788,7 +808,10 @@
             if (!s) return;
             s.search = value;
             s.page   = 1;
-            updateUrlParam(`search_${id}`, value || null);
+            if (s.config.trackUrl) {
+                updateUrlParam(`search_${id}`, value || null);
+                updateUrlParam(`page_${id}`, null);
+            }
             document.dispatchEvent(new CustomEvent('flt:search', {
                 detail: { tableId: id, query: value },
             }));
@@ -830,6 +853,10 @@
                     state.sortDir = 'asc';
                 }
                 state.page = 1;
+                if (state.config.trackUrl) {
+                    updateUrlParam(`sort_${id}`, state.sortCol);
+                    updateUrlParam(`sortDir_${id}`, state.sortDir !== 'asc' ? state.sortDir : null);
+                }
 
                 sortBtns.forEach(b => {
                     b.classList.remove('asc', 'desc');
@@ -873,9 +900,11 @@
                 const state = instances.get(id);
                 if (state) {
                     state.page = Number(page.dataset.page);
+                    if (state.config.trackUrl) updateUrlParam(`page_${id}`, state.page > 1 ? state.page : null);
                     document.dispatchEvent(new CustomEvent('flt:page-change', {
                         detail: { tableId: id, page: state.page },
                     }));
+                    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     load(id);
                 }
                 return;
@@ -1017,6 +1046,10 @@
                 if (state) {
                     state.filterValues[filter.dataset.param] = filter.value;
                     state.page = 1;
+                    if (state.config.trackUrl) {
+                        updateUrlParam(filter.dataset.param, filter.value || null);
+                        updateUrlParam(`page_${id}`, null);
+                    }
                     load(id);
                 }
                 return;
@@ -1138,6 +1171,12 @@
         if (!state) return;
         state.panelFilterValues = values;
         state.page = 1;
+        if (state.config.trackUrl) {
+            for (const [key, val] of Object.entries(values)) {
+                updateUrlParam(`pf_${tableId}_${key}`, val || null);
+            }
+            updateUrlParam(`page_${tableId}`, null);
+        }
         load(tableId);
     });
 
@@ -1145,6 +1184,12 @@
         const { tableId } = e.detail;
         const state = instances.get(tableId);
         if (!state) return;
+        if (state.config.trackUrl) {
+            for (const key of Object.keys(state.panelFilterValues)) {
+                updateUrlParam(`pf_${tableId}_${key}`, null);
+            }
+            updateUrlParam(`page_${tableId}`, null);
+        }
         state.panelFilterValues = {};
         state.page = 1;
         load(tableId);
@@ -1173,11 +1218,21 @@
             initSearch(id);
             initRemoteFilters(id);
 
-            // Update perPage label to match restored value
+            // Sync DOM state to match restored values (URL or localStorage)
             const state = instances.get(id);
             if (state) {
                 const label = document.querySelector(`.flt-per-page-label[data-table="${id}"]`);
                 if (label) label.textContent = String(state.perPage);
+
+                // Restore quick filter selects from URL
+                if (config.trackUrl) {
+                    document.querySelectorAll(`.flt-filter[data-table="${id}"]`).forEach(sel => {
+                        const param = sel.dataset.param;
+                        if (param && state.filterValues[param] !== undefined) {
+                            sel.value = state.filterValues[param];
+                        }
+                    });
+                }
             }
 
             load(id);

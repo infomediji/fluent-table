@@ -20,6 +20,7 @@ final class Table
     /** @var list<array{label: string, param: string, options: array<string, string>, value: string}> */
     private array $filters = [];
     private bool $remoteFilters = false;
+    private bool $trackUrl = false;
     /** @var list<array{label: string, url: string, icon: string|null}> */
     private array $actions = [];
     private ?string $bulkField = null;
@@ -216,6 +217,16 @@ final class Table
     }
 
     /**
+     * Sync search, sort, page and filters to the URL query string.
+     * Enables sharing links with active state.
+     */
+    public function trackUrl(): self
+    {
+        $this->trackUrl = true;
+        return $this;
+    }
+
+    /**
      * Enable remote filters — the backend sends filter definitions in meta.filters,
      * and FluentTable dispatches events for an external offcanvas plugin to handle.
      */
@@ -295,6 +306,7 @@ final class Table
         if ($this->expandable !== false)  $config['expandable']  = $this->expandable;
         if ($this->filters !== [])       $config['filters']     = $this->filters;
         if ($this->remoteFilters)        $config['remoteFilters'] = true;
+        if ($this->trackUrl)             $config['trackUrl']      = true;
         if ($this->labels !== [])       $config['labels']      = $this->labels;
 
         return $config;
@@ -331,7 +343,7 @@ final class Table
         }
 
         $tags = '';
-        foreach (['table.css', 'table.js'] as $file) {
+        foreach (['table.css', 'table.js', 'integration.js'] as $file) {
             $source = $resourcesDir . $file;
             if (!file_exists($source)) {
                 continue;

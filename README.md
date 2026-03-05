@@ -89,6 +89,7 @@ echo json_encode(Response::make($rows, $total, $page, $perPage));
 | `pageSizes(array $sizes)` | Page size options, e.g. `[20, 50, 100]` |
 | `emptyState(string $msg, string $icon)` | Custom empty state message and icon |
 | `locale(array $labels)` | Override UI labels (keys: `records`, `filters`, `search`, `loading`, `empty`, `error`) |
+| `trackUrl()` | Sync search, sort, page and filters to the URL query string (enables shareable links) |
 
 ## Column Modifiers
 
@@ -235,17 +236,61 @@ Table::make('/api/scenes')
 
 ### Backend response
 
+Options are an array of objects with `value` and `label`. Optionally include `count` to show item counts next to each option in the filter panel.
+
 ```json
 {
   "data": [],
   "meta": {
     "pagination": { "page": 1, "perPage": 20, "totalCount": 100, "totalPages": 5 },
     "filters": [
-      { "label": "Active", "param": "active", "options": { "": "All", "1": "Active", "0": "Inactive" } },
-      { "label": "Status", "param": "moderationStatus", "options": { "": "All", "1": "Pending", "2": "Approved" } }
+      {
+        "label": "Status",
+        "param": "profile_status",
+        "options": [
+          { "value": "",  "label": "All" },
+          { "value": "1", "label": "Pending",  "count": 84 },
+          { "value": "2", "label": "Approved", "count": 12 },
+          { "value": "3", "label": "Suspended","count": 4  }
+        ]
+      }
     ]
   }
 }
+```
+
+### integration.js
+
+The package ships `integration.js` — published automatically alongside `table.js`. It provides:
+
+- **UIUpdater bridge** — calls `window.UIUpdater.start()/end()` on `flt:loading` / `flt:loading-done` (optional, only runs if `window.UIUpdater` exists)
+- **Offcanvas filter adapter** — renders filter fields and wires Apply/Reset buttons to FluentTable events
+
+Include it after `table.js`. Works with Bootstrap or Tabler (auto-detected):
+
+```html
+<script src="/s/widgets/fluent_table/table.{timestamp}.js"></script>
+<script src="/s/widgets/fluent_table/integration.{timestamp}.js"></script>
+```
+
+Required HTML (place anywhere in `<body>`):
+
+```html
+<div class="offcanvas offcanvas-end" tabindex="-1" id="tableFilters">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title">Filters</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="filterPanel" class="row g-3"></div>
+    </div>
+    <div class="offcanvas-footer p-3 border-top">
+        <div class="d-flex gap-2 w-100">
+            <button class="btn btn-primary w-100" id="applyFilters">Apply</button>
+            <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset</button>
+        </div>
+    </div>
+</div>
 ```
 
 ### Event contract
@@ -260,176 +305,7 @@ External plugin must dispatch:
 
 ### Active filters bar
 
-FluentTable renders an empty container `<div id="{tableId}-active-filters">` between the header and the table. The offcanvas plugin populates it with badges showing applied filters.
-
-### Offcanvas plugin implementation guide
-
-The offcanvas plugin is **not** part of FluentTable — it lives in the host application. Below is a reference implementation.
-
-#### 1. HTML structure
-
-Place anywhere in your layout (e.g. end of `<body>`):
-
-```html
-<div class="offcanvas offcanvas-end" tabindex="-1" id="tableFilters">
-    <div class="offcanvas-header">
-        <h2 class="offcanvas-title">Filters</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body">
-        <div data-filter-panel></div>
-    </div>
-    <div class="offcanvas-footer p-3 border-top">
-        <div class="d-flex gap-2 w-100">
-            <button class="btn w-100" data-filter-reset>Reset</button>
-            <button class="btn btn-primary w-100" data-filter-apply>Apply</button>
-        </div>
-    </div>
-</div>
-```
-
-#### 2. JS — FilterPanel class
-
-```js
-class FilterPanel {
-    constructor() {
-        this.tableId = null;
-        this.filters = [];
-        this.values  = {};
-        this.labels  = {};
-
-        this.offcanvas = new bootstrap.Offcanvas('#tableFilters');
-        this.panel     = document.querySelector('[data-filter-panel]');
-        this.bindEvents();
-    }
-
-    bindEvents() {
-        document.addEventListener('flt:filters-loaded', (e) => {
-            this.tableId = e.detail.tableId;
-            this.filters = e.detail.filters;
-            this.values  = { ...e.detail.values };
-            this.buildLabelsMap();
-            this.renderActiveBar();
-        });
-
-        document.addEventListener('flt:filters-open', (e) => {
-            this.tableId = e.detail.tableId;
-            this.filters = e.detail.filters;
-            this.values  = { ...e.detail.values };
-            this.renderPanel();
-            this.offcanvas.show();
-        });
-
-        document.querySelector('[data-filter-apply]').addEventListener('click', () => {
-            this.collectValues();
-            document.dispatchEvent(new CustomEvent('flt:filters-apply', {
-                detail: { tableId: this.tableId, values: this.values }
-            }));
-            this.offcanvas.hide();
-            this.renderActiveBar();
-        });
-
-        document.querySelector('[data-filter-reset]').addEventListener('click', () => {
-            this.values = {};
-            document.dispatchEvent(new CustomEvent('flt:filters-reset', {
-                detail: { tableId: this.tableId }
-            }));
-            this.offcanvas.hide();
-            this.renderActiveBar();
-        });
-    }
-
-    buildLabelsMap() {
-        this.labels = {};
-        this.filters.forEach(f => {
-            this.labels[f.param] = {};
-            Object.entries(f.options || {}).forEach(([val, label]) => {
-                this.labels[f.param][val] = label;
-            });
-        });
-    }
-
-    renderPanel() {
-        this.panel.innerHTML = this.filters.map(f => {
-            const current = this.values[f.param] ?? '';
-            if (f.options) {
-                const opts = Object.entries(f.options)
-                    .map(([v, l]) => `<option value="${v}"${v === current ? ' selected' : ''}>${l}</option>`)
-                    .join('');
-                return `<div class="mb-3">
-                    <label class="form-label">${f.label}:</label>
-                    <select class="form-select" data-filter-key="${f.param}">${opts}</select>
-                </div>`;
-            }
-            return `<div class="mb-3">
-                <label class="form-label">${f.label}:</label>
-                <input type="text" class="form-control" data-filter-key="${f.param}"
-                       value="${current}" placeholder="">
-            </div>`;
-        }).join('');
-    }
-
-    collectValues() {
-        this.values = {};
-        this.panel.querySelectorAll('[data-filter-key]').forEach(el => {
-            if (el.value !== '' && el.value !== null) {
-                this.values[el.dataset.filterKey] = el.value;
-            }
-        });
-    }
-
-    renderActiveBar() {
-        const container = document.getElementById(this.tableId + '-active-filters');
-        if (!container) return;
-
-        const active = Object.entries(this.values)
-            .filter(([, val]) => val !== '' && val !== null && val !== undefined);
-
-        if (!active.length) {
-            container.classList.add('d-none');
-            container.innerHTML = '';
-            return;
-        }
-
-        container.classList.remove('d-none');
-        container.innerHTML = `<div class="card-body py-2 border-bottom">
-            <div class="d-flex flex-wrap gap-2">
-                ${active.map(([param, value]) => {
-                    const filter = this.filters.find(f => f.param === param);
-                    const label  = this.labels[param]?.[value] || value;
-                    const name   = filter?.label || param;
-                    return `<span class="badge bg-blue-lt">
-                        ${name}: ${label}
-                        <button type="button" data-filter-remove="${param}"
-                                class="btn-close btn-close-sm ms-1"
-                                aria-label="Remove"></button>
-                    </span>`;
-                }).join('')}
-            </div>
-        </div>`;
-
-        container.querySelectorAll('[data-filter-remove]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                delete this.values[btn.dataset.filterRemove];
-                document.dispatchEvent(new CustomEvent('flt:filters-apply', {
-                    detail: { tableId: this.tableId, values: this.values }
-                }));
-                this.renderActiveBar();
-            });
-        });
-    }
-}
-
-new FilterPanel();
-```
-
-#### 3. Flow
-
-1. Data loads → backend returns `meta.filters` → `flt:filters-loaded` → plugin builds labels and renders active bar
-2. "Filters" button click → `flt:filters-open` → plugin renders form, shows offcanvas
-3. "Apply" → `flt:filters-apply` → FluentTable reloads → active bar updates
-4. Badge `×` click → removes param, dispatches `flt:filters-apply` → reload
-5. "Reset" → `flt:filters-reset` → all filters cleared
+FluentTable renders an empty container `<div id="{tableId}-active-filters">` between the header and the table. An external plugin can populate it with badges showing applied filters.
 
 ## Events
 
@@ -438,6 +314,7 @@ FluentTable dispatches `CustomEvent`s on `document`.
 | Event | When fired | `e.detail` |
 |---|---|---|
 | `flt:loading` | Request starts | `{ tableId }` |
+| `flt:loading-done` | Request finished (success or error, not fired on abort) | `{ tableId }` |
 | `flt:loaded` | Data received and rendered | `{ tableId, rows, pagination }` |
 | `flt:error` | Request failed | `{ tableId, error }` |
 | `flt:page-change` | User changes page | `{ tableId, page }` |
@@ -545,42 +422,6 @@ Table::make('/api/items')
 Example: `DateCast::make('d M Y')` → `05 Jan 2024`
 
 For `DatePickerCast`, PHP tokens are automatically converted to AirDatepicker format internally.
-
-## Example: Integration in sbd-admin-backend
-
-This example shows how the package was integrated into the `sbd-admin-backend` project as a pilot on the **Scripts** page.
-
-### Setup
-
-The package is connected as a local path repository (`packages/table-v2/`). To switch to a remote repo:
-
-1. Push this repo to GitHub/Gitea (`infomediji/fluent-table`)
-2. In `sbd-admin-backend/composer.json`:
-   - Replace path repository `./packages/table-v2` with the VCS URL
-   - Replace `"infomediji/table-v2": "@dev"` with `"infomediji/fluent-table": "@dev"`
-3. Run `composer update infomediji/fluent-table`
-4. Update `use` imports: `Infomediji\TableV2\` → `Infomediji\FluentTable\`
-   - File: `application/controllers/Admin/Fleshlightpartners/Scripts.php`
-5. Delete `packages/table-v2/`
-
-### Controller actions
-
-- `listV2Action` — builds the table with columns: Active, Title, Studio, Date, Vendor, Status, Type, Price, Download
-- `listV2DataAction` — REST endpoint, applies status/vendor/ai_type filters + search, returns paginated rows
-- `listV2ToggleActiveAction` — checkbox toggle endpoint (JSON body)
-
-### Files
-
-- View: `application/views/controllers/admin_fleshlight-partners_scripts/listv2.tpl`
-- Route: registered in `library/Admin/ControllerAbstract.php` `$tabler_routes` array
-
-### Host-app requirements
-
-- `PUBLIC_HTML_PATH` constant — defined in `sbd-admin-backend`
-- Assets published to `public_html/s/widgets/fluent_table/`
-- `window.UIUpdater` (from `core.js`) — loading indicator integration
-- `window.showToast(type, message)` (from `core.js`) — toast notifications after toggles
-- Layout `core_tb.tpl` — exclude `core-tags.js`, `core-timeline.js`, `web-player` scripts on non-edit pages
 
 ## License
 

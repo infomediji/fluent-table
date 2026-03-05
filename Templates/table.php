@@ -111,16 +111,6 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
     <!-- Table -->
     <div class="table-responsive position-relative">
 
-        <!-- Loading overlay -->
-        <div class="flt-loader" id="<?= htmlspecialchars($id) ?>-loader" aria-busy="false" style="visibility:hidden">
-            <div class="flt-loader-inner">
-                <div class="spinner-border text-secondary" role="status">
-                    <span class="visually-hidden"><?= htmlspecialchars($l('loading', 'Loading...')) ?></span>
-                </div>
-                <span class="visually-hidden flt-loader-text" aria-live="polite"></span>
-            </div>
-        </div>
-
         <table class="table table-vcenter card-table" aria-label="<?= htmlspecialchars($title ?? $l('tableLabel', 'Data table')) ?>">
             <thead>
                 <tr>
@@ -189,6 +179,8 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                 <?php endforeach; ?>
             </ul>
         </div>
+
+        <p class="m-0 ms-3 text-secondary flt-showing" id="<?= htmlspecialchars($id) ?>-showing" aria-live="polite"></p>
 
         <ul class="pagination m-0 ms-auto" id="<?= htmlspecialchars($id) ?>-pagination" aria-label="<?= htmlspecialchars($l('pagination', 'Table pagination')) ?>">
             <!-- JS fills this -->
