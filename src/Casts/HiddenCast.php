@@ -4,7 +4,9 @@ namespace Infomediji\FluentTable\Casts;
 
 final class HiddenCast extends AbstractCast
 {
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function make(): self
     {

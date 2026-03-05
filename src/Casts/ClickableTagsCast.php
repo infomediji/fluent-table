@@ -11,7 +11,8 @@ final class ClickableTagsCast extends AbstractCast
         private readonly Color|string $color = 'secondary',
         private readonly ?string $labelField = null,
         private readonly ?string $valueField = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param string       $url        URL with {value} placeholder (or {field} from item)

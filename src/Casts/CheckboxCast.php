@@ -11,7 +11,8 @@ final class CheckboxCast extends AbstractCast
         private mixed $falseValue = false,
         private bool $readOnly = false,
         private bool $disabled = false,
-    ) {}
+    ) {
+    }
 
     /**
      * Interactive checkbox that POSTs on change.

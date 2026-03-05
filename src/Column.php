@@ -17,7 +17,8 @@ final class Column
     public function __construct(
         private readonly string $name,
         private readonly string $field,
-    ) {}
+    ) {
+    }
 
     public function setCast(CastInterface $cast): void
     {

@@ -8,7 +8,8 @@ final class LinkCast extends AbstractCast
         private readonly string $url,
         private readonly ?string $label = null,
         private bool $blank = false,
-    ) {}
+    ) {
+    }
 
     /**
      * @param string      $url   URL with {field} placeholders, e.g. '/scenes/{scene._id}'

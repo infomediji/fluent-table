@@ -18,17 +18,17 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
 ?>
 <div class="card-table" id="<?= htmlspecialchars($id) ?>-wrap">
 
-    <?php if ($hasHeader): ?>
+    <?php if ($hasHeader) : ?>
     <!-- Header -->
     <div class="card-header">
         <div class="row w-100 align-items-center g-2">
 
             <!-- Left: title / description -->
             <div class="col">
-                <?php if ($title !== null): ?>
+                <?php if ($title !== null) : ?>
                 <h3 class="card-title mb-0"><?= htmlspecialchars($title) ?></h3>
                 <?php endif; ?>
-                <?php if ($description !== null): ?>
+                <?php if ($description !== null) : ?>
                 <p class="card-subtitle mt-0"><?= htmlspecialchars($description) ?></p>
                 <?php endif; ?>
             </div>
@@ -37,11 +37,11 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
             <div class="col-md-auto col-sm-12">
                 <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
 
-                    <?php if ($actions !== []): ?>
+                    <?php if ($actions !== []) : ?>
                     <div class="btn-group">
-                        <?php foreach ($actions as $action): ?>
+                        <?php foreach ($actions as $action) : ?>
                         <a href="<?= htmlspecialchars($action['url']) ?>" class="btn btn-ghost-secondary">
-                            <?php if (!empty($action['icon'])): ?>
+                            <?php if (!empty($action['icon'])) : ?>
                             <i class="ti ti-<?= htmlspecialchars($action['icon']) ?>" aria-hidden="true"></i>
                             <?php endif; ?>
                             <?= htmlspecialchars($action['label']) ?>
@@ -50,15 +50,15 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                     </div>
                     <?php endif; ?>
 
-                    <?php foreach ($filters as $filter): ?>
-                    <?php $filterId = htmlspecialchars($id . '-filter-' . $filter['param']); ?>
+                    <?php foreach ($filters as $filter) : ?>
+                        <?php $filterId = htmlspecialchars($id . '-filter-' . $filter['param']); ?>
                     <div class="flt-filter-wrap">
                         <label class="flt-filter-label" for="<?= $filterId ?>"><?= htmlspecialchars($filter['label']) ?></label>
                         <select class="flt-filter"
                                 id="<?= $filterId ?>"
                                 data-table="<?= htmlspecialchars($id) ?>"
                                 data-param="<?= htmlspecialchars($filter['param']) ?>">
-                            <?php foreach ($filter['options'] as $val => $label): ?>
+                            <?php foreach ($filter['options'] as $val => $label) : ?>
                             <option value="<?= htmlspecialchars((string) $val) ?>"
                                 <?= (string) $val === (string) ($filter['value'] ?? '') ? ' selected' : '' ?>>
                                 <?= htmlspecialchars((string) $label) ?>
@@ -68,7 +68,7 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                     </div>
                     <?php endforeach; ?>
 
-                    <?php if ($hasRemoteFilters): ?>
+                    <?php if ($hasRemoteFilters) : ?>
                     <button type="button" class="btn btn-ghost-secondary flt-open-filters"
                        data-table="<?= htmlspecialchars($id) ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                     </button>
                     <?php endif; ?>
 
-                    <?php if ($hasSearch): ?>
+                    <?php if ($hasSearch) : ?>
                     <div class="input-group input-group-flat w-auto">
                         <span class="input-group-text">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -114,24 +114,24 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
         <table class="table table-vcenter card-table" aria-label="<?= htmlspecialchars($title ?? $l('tableLabel', 'Data table')) ?>">
             <thead>
                 <tr>
-                    <?php if ($bulkField !== null): ?>
+                    <?php if ($bulkField !== null) : ?>
                     <th style="width:1%"><input type="checkbox" class="form-check-input flt-select-all" data-table="<?= htmlspecialchars($id) ?>" aria-label="<?= htmlspecialchars($l('selectAll', 'Select all')) ?>"></th>
                     <?php endif; ?>
-                    <?php foreach ($visibleColumns as $col): ?>
+                    <?php foreach ($visibleColumns as $col) : ?>
                     <th<?= !empty($col['width']) ? ' style="width:' . htmlspecialchars($col['width']) . '"' : '' ?>
                         <?= ($col['align'] ?? 'left') !== 'left' ? ' class="text-' . htmlspecialchars($col['align']) . '"' : '' ?>>
-                        <?php if ($col['sortable'] ?? true): ?>
+                        <?php if ($col['sortable'] ?? true) : ?>
                             <button type="button" class="table-sort d-flex align-items-center gap-1 flt-sort"
                                     data-table="<?= htmlspecialchars($id) ?>"
                                     data-field="<?= htmlspecialchars($col['field']) ?>">
                                 <?= htmlspecialchars($col['name']) ?>
                             </button>
-                        <?php else: ?>
+                        <?php else : ?>
                             <?= htmlspecialchars($col['name']) ?>
                         <?php endif; ?>
                     </th>
                     <?php endforeach; ?>
-                    <?php if ($expandable === 'button'): ?>
+                    <?php if ($expandable === 'button') : ?>
                     <th style="width:1%"></th>
                     <?php endif; ?>
                 </tr>
@@ -170,7 +170,7 @@ $hasHeader = $title !== null || $description !== null || $filters !== [] || $has
                 <span class="ms-1"><?= htmlspecialchars($l('records', 'records')) ?></span>
             </button>
             <ul class="dropdown-menu">
-                <?php foreach ($decoded['pageSizes'] as $size): ?>
+                <?php foreach ($decoded['pageSizes'] as $size) : ?>
                 <li><button type="button" class="dropdown-item flt-page-size"
                    data-table="<?= htmlspecialchars($id) ?>"
                    data-value="<?= (int) $size ?>">

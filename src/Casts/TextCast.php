@@ -6,7 +6,8 @@ final class TextCast extends AbstractCast
 {
     private function __construct(
         private readonly ?string $placeholder = '—',
-    ) {}
+    ) {
+    }
 
     public static function make(?string $placeholder = '—'): self
     {

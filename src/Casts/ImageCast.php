@@ -8,7 +8,8 @@ final class ImageCast extends AbstractCast
         private readonly string $width = '48px',
         private readonly string $height = '48px',
         private readonly bool $rounded = false,
-    ) {}
+    ) {
+    }
 
     public static function make(string $width = '48px', string $height = '48px'): self
     {

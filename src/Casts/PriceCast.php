@@ -7,7 +7,8 @@ final class PriceCast extends AbstractCast
     private function __construct(
         private readonly string $currency = 'USD',
         private readonly string $locale = 'en-US',
-    ) {}
+    ) {
+    }
 
     public static function make(string $currency = 'USD', string $locale = 'en-US'): self
     {

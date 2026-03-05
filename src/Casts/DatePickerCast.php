@@ -11,7 +11,8 @@ final class DatePickerCast extends AbstractCast
         private ?string $minDate = null,
         private ?string $maxDate = null,
         private bool $nullable = false,
-    ) {}
+    ) {
+    }
 
     /**
      * @param string $url    POST URL with {field} placeholders

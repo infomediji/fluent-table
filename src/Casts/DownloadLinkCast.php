@@ -10,7 +10,8 @@ final class DownloadLinkCast extends AbstractCast
         private readonly ?string $url = null,
         private readonly string $label = 'Download',
         private readonly ButtonStyle|string $style = 'ghost-primary',
-    ) {}
+    ) {
+    }
 
     /**
      * @param string|null        $url   URL with {field} placeholders. Null = use cell value as URL.

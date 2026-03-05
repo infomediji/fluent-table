@@ -12,7 +12,8 @@ final class ModalButtonCast extends AbstractCast
         private readonly string $label,
         private readonly ButtonStyle|string $style = 'ghost-primary',
         private array $fields = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param string             $target CSS selector of Bootstrap modal, e.g. '#editModal'
