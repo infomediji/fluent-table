@@ -6,9 +6,9 @@ final class EntityCast extends AbstractCast
 {
     private function __construct(
         private readonly string $title,
-        private ?string $avatar = null,
-        private ?string $subtitle = null,
-        private string $avatarSize = '32px',
+        protected ?string $avatar = null,
+        protected ?string $subtitle = null,
+        protected string $avatarSize = '32px',
     ) {}
 
     public static function make(string $title): self
