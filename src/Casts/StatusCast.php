@@ -10,7 +10,8 @@ final class StatusCast extends AbstractCast
     private function __construct(
         private readonly array $map,
         private readonly Color|string $default = 'secondary',
-    ) {}
+    ) {
+    }
 
     /**
      * @param array<string, Color|string> $map value => color

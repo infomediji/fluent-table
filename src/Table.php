@@ -301,15 +301,33 @@ final class Table
             'columns' => array_map(static fn(Column $c): array => $c->toArray(), $this->columns),
         ];
 
-        if ($this->title !== null)       $config['title']       = $this->title;
-        if ($this->description !== null) $config['description'] = $this->description;
-        if ($this->actions !== [])       $config['actions']     = $this->actions;
-        if ($this->bulkField !== null)   $config['bulkField']   = $this->bulkField;
-        if ($this->expandable !== false)  $config['expandable']  = $this->expandable;
-        if ($this->filters !== [])       $config['filters']     = $this->filters;
-        if ($this->remoteFilters)        $config['remoteFilters'] = true;
-        if ($this->trackUrl)             $config['trackUrl']      = true;
-        if ($this->labels !== [])       $config['labels']      = $this->labels;
+        if ($this->title !== null) {
+            $config['title']       = $this->title;
+        }
+        if ($this->description !== null) {
+            $config['description'] = $this->description;
+        }
+        if ($this->actions !== []) {
+            $config['actions']     = $this->actions;
+        }
+        if ($this->bulkField !== null) {
+            $config['bulkField']   = $this->bulkField;
+        }
+        if ($this->expandable !== false) {
+            $config['expandable']  = $this->expandable;
+        }
+        if ($this->filters !== []) {
+            $config['filters']     = $this->filters;
+        }
+        if ($this->remoteFilters) {
+            $config['remoteFilters'] = true;
+        }
+        if ($this->trackUrl) {
+            $config['trackUrl']      = true;
+        }
+        if ($this->labels !== []) {
+            $config['labels']      = $this->labels;
+        }
 
         return $config;
     }

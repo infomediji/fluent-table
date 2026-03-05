@@ -7,7 +7,8 @@ final class DateCast extends AbstractCast
     private function __construct(
         private readonly string $format,
         private readonly bool $withTime = false,
-    ) {}
+    ) {
+    }
 
     public static function make(string $format = 'd M Y'): self
     {

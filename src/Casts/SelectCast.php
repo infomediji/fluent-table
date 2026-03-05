@@ -10,7 +10,8 @@ final class SelectCast extends AbstractCast
         private readonly string $field,
         private array $options = [],
         private ?string $optionsFrom = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param string $url   POST URL with {field} placeholders

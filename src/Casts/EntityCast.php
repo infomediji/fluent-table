@@ -9,7 +9,8 @@ final class EntityCast extends AbstractCast
         protected ?string $avatar = null,
         protected ?string $subtitle = null,
         protected string $avatarSize = '32px',
-    ) {}
+    ) {
+    }
 
     public static function make(string $title): self
     {

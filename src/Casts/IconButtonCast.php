@@ -15,7 +15,8 @@ final class IconButtonCast extends AbstractCast
         private ?string $tooltip = null,
         private ?string $confirm = null,
         private array $payload = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param string             $url  POST URL with {field} placeholders

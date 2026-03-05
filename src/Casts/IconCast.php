@@ -12,7 +12,8 @@ final class IconCast extends AbstractCast
         private readonly Icon|string|null $icon = null,
         private readonly ?array $map = null,
         private readonly Color|string|null $color = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Static icon — always the same regardless of value.

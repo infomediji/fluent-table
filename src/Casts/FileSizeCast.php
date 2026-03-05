@@ -6,7 +6,8 @@ final class FileSizeCast extends AbstractCast
 {
     private function __construct(
         private readonly int $decimals = 1,
-    ) {}
+    ) {
+    }
 
     public static function make(int $decimals = 1): self
     {

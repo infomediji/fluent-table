@@ -10,7 +10,8 @@ final class BadgeCast extends AbstractCast
     private function __construct(
         private readonly array $map,
         private readonly Color|string|null $default = 'secondary',
-    ) {}
+    ) {
+    }
 
     /**
      * @param array<string, Color|string> $map value => Color constant

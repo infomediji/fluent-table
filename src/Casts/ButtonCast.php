@@ -13,7 +13,8 @@ final class ButtonCast extends AbstractCast
         private readonly ButtonStyle|string $style = 'ghost-primary',
         private ?string $confirm = null,
         private array $payload = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param string             $url   POST URL with {field} placeholders

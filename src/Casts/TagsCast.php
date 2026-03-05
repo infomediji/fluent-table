@@ -9,7 +9,8 @@ final class TagsCast extends AbstractCast
     private function __construct(
         private readonly Color|string $color = 'secondary',
         private readonly ?string $labelField = null,
-    ) {}
+    ) {
+    }
 
     /**
      * @param Color|string $color      Badge color (Color::*)

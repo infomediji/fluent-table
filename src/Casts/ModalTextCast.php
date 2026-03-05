@@ -9,7 +9,8 @@ final class ModalTextCast extends AbstractCast
         private readonly string $target,
         private readonly ?string $label = null,
         private array $fields = [],
-    ) {}
+    ) {
+    }
 
     /**
      * @param string      $target CSS selector of Bootstrap modal, e.g. '#viewModal'
