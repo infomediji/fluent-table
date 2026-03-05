@@ -30,11 +30,75 @@
         return;
     }
 
-    let currentTableId = null;
+    let currentTableId = null;/** Filter definitions from last flt:filters-loaded — used for label lookup in active bar */
+    let knownFilters = [];
+
+    // -------------------------------------------------------------------------
+    // Active filters bar
+    // -------------------------------------------------------------------------
+
+    function renderActiveBar(tableId, values) {
+        const bar = document.getElementById(`${tableId}-active-filters`);
+        if (!bar) return;
+
+        const active = knownFilters
+            .map(f => ({ f, val: values[f.param] }))
+            .filter(({ val }) => val !== '' && val !== null && val !== undefined);
+
+        if (!active.length) {
+            bar.classList.add('d-none');
+            bar.innerHTML = '';
+            return;
+        }
+
+        bar.classList.remove('d-none');
+        const wrap = document.createElement('div');
+        wrap.className = 'card-body py-2 border-bottom d-flex flex-wrap gap-2';
+
+        active.forEach(({ f, val }) => {
+            const opt   = (f.options || []).find(o => String(o.value) === String(val));
+            const label = opt ? opt.label : val;
+
+            const badge     = document.createElement('span');
+            badge.className = 'badge bg-blue-lt d-flex align-items-center gap-1';
+
+            const text       = document.createElement('span');
+            text.textContent = `${f.label}: ${label}`;
+
+            const btn     = document.createElement('button');
+            btn.type      = 'button';
+            btn.className = 'btn-close btn-close-sm ms-1';
+            btn.setAttribute('aria-label', `Remove ${f.label} filter`);
+            btn.addEventListener('click', () => {
+                const next = { ...values, [f.param]: '' };
+                document.dispatchEvent(new CustomEvent('flt:filters-apply', {
+                    detail: { tableId, values: next },
+                }));
+            });
+
+            badge.append(text, btn);
+            wrap.appendChild(badge);
+        });
+
+        bar.innerHTML = '';
+        bar.appendChild(wrap);
+    }
+
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    document.addEventListener('flt:filters-loaded', ({ detail }) => {
+        const { tableId, filters, values } = detail;
+        currentTableId = tableId;
+        knownFilters   = filters;
+        renderActiveBar(tableId, values);
+    });
 
     document.addEventListener('flt:filters-open', ({ detail }) => {
         const { tableId, filters, values } = detail;
         currentTableId = tableId;
+        knownFilters   = filters;
 
         panelEl.innerHTML = '';
 
@@ -79,6 +143,7 @@
             detail: { tableId: currentTableId, values },
         }));
         BS?.Offcanvas?.getInstance(offcanvasEl)?.hide();
+        renderActiveBar(currentTableId, values);
     });
 
     document.getElementById('resetFilters')?.addEventListener('click', () => {
@@ -86,6 +151,7 @@
             detail: { tableId: currentTableId },
         }));
         BS?.Offcanvas?.getInstance(offcanvasEl)?.hide();
+        renderActiveBar(currentTableId, {});
     });
 
 })();
