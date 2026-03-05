@@ -31,6 +31,8 @@ final class Table
     private string $uniqueId;
 
     private static bool $assetsPublished = false;
+    /** @var list<string> */
+    private static array $assetTags = [];
 
     private function __construct(private readonly string $endpoint)
     {
@@ -255,7 +257,7 @@ final class Table
 
     public function render(): string
     {
-        $assets = $this->publishAssets();
+        $this->publishAssets();
         $decoded = $this->buildConfig();
         $config  = json_encode($decoded, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
@@ -268,7 +270,7 @@ final class Table
             throw $e;
         }
         $html = ob_get_clean();
-        return $assets . ($html !== false ? $html : '');
+        return $html !== false ? $html : '';
     }
 
     // -------------------------------------------------------------------------
@@ -320,10 +322,10 @@ final class Table
      * Assets are published to PUBLIC_HTML_PATH/s/widgets/fluent_table/ with cache-busting
      * timestamps in the filename.
      */
-    private function publishAssets(): string
+    private function publishAssets(): void
     {
         if (self::$assetsPublished) {
-            return '';
+            return;
         }
 
         if (!defined('PUBLIC_HTML_PATH')) {
@@ -342,7 +344,6 @@ final class Table
             throw new \RuntimeException('Failed to create directory: ' . $publicDir);
         }
 
-        $tags = '';
         foreach (['table.css', 'table.js', 'integration.js'] as $file) {
             $source = $resourcesDir . $file;
             if (!file_exists($source)) {
@@ -375,14 +376,12 @@ final class Table
             }
 
             $url = '/s/widgets/fluent_table/' . $timestamped;
-            $tags .= $ext === 'css'
+            self::$assetTags[] = $ext === 'css'
                 ? '<link rel="stylesheet" href="' . $url . '">'
                 : '<script src="' . $url . '"></script>';
         }
 
         self::$assetsPublished = true;
-
-        return $tags;
     }
 
     /**
@@ -394,11 +393,22 @@ final class Table
     }
 
     /**
+     * Return collected CSS/JS tags for the footer.
+     * If no table was rendered on the page, returns an empty string.
+     * Call once in your layout, after Tabler/Bootstrap JS.
+     */
+    public static function assets(): string
+    {
+        return implode("\n", self::$assetTags);
+    }
+
+    /**
      * Reset assets published flag so assets are re-published on next render.
      */
     public static function resetAssets(): void
     {
         self::$assetsPublished = false;
+        self::$assetTags = [];
     }
 
     /**

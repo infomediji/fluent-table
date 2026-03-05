@@ -15,6 +15,12 @@
     document.addEventListener('flt:loading',      () => window.UIUpdater?.start());
     document.addEventListener('flt:loading-done', () => window.UIUpdater?.end(true));
 
+    // First load fires flt:loading before this script is registered.
+    // Catch tables already loading by checking aria-busy on their wrappers.
+    document.querySelectorAll('.card-table[aria-busy="true"]').forEach(() => {
+        window.UIUpdater?.start();
+    });
+
     // -------------------------------------------------------------------------
     // Offcanvas filter panel
     // -------------------------------------------------------------------------
@@ -30,7 +36,8 @@
         return;
     }
 
-    let currentTableId = null;/** Filter definitions from last flt:filters-loaded — used for label lookup in active bar */
+    let currentTableId = null;
+    /** Filter definitions from last flt:filters-loaded — used for label lookup in active bar */
     let knownFilters = [];
 
     // -------------------------------------------------------------------------
@@ -71,6 +78,7 @@
             btn.setAttribute('aria-label', `Remove ${f.label} filter`);
             btn.addEventListener('click', () => {
                 const next = { ...values, [f.param]: '' };
+                renderActiveBar(tableId, next);
                 document.dispatchEvent(new CustomEvent('flt:filters-apply', {
                     detail: { tableId, values: next },
                 }));
